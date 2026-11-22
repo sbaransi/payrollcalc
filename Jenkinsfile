@@ -94,7 +94,7 @@ podTemplate(containers: [
             }
         }
 
-                stage('add-dashboard') {
+        stage('add-dashboard') {
             container('deployer') {
                 def dashFile = "dashboards/${user}-${appname}.json"
                 echo "Adding Grafana dashboard -> ${dashFile}"
