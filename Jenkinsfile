@@ -94,12 +94,30 @@ podTemplate(containers: [
             }
         }
 
-        stage('add-dashboard') {
+                stage('add-dashboard') {
             container('deployer') {
-                sh """
-                    echo " TBD: Add dashboard to grafana"
+                def dashFile = "dashboards/${user}-${appname}.json"
+                echo "Adding Grafana dashboard -> ${dashFile}"
+                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                sh """#!/bin/sh
+                    set -e
+                    rm -rf gitops
+                    git clone https://\${GIT_USER}:\${GIT_TOKEN}@${gitopsRepo} gitops
+                    cd gitops
+                    git config user.name  "Jenkins (${user})"
+                    git config user.email "elevy99927-demos@users.noreply.github.com"
+
+                    mkdir -p dashboards
+                    sed 's/[\$]{DS_PROMETHEUS}/prometheus/g' "${env.WORKSPACE}/grafana-dashboard.json" > ${dashFile}
+
+                    git add ${dashFile}
+                    if git diff --cached --quiet; then
+                        echo "Dashboard unchanged - nothing to commit"
+                        exit 0
+                    fi
+                    git commit -m "Add dashboard ${appname} (${department}) by ${user}"
+                    git push origin HEAD:main
                 """
+                }
             }
         }
-    }
-  }
