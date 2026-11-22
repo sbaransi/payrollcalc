@@ -117,7 +117,9 @@ podTemplate(containers: [
                     fi
                     git commit -m "Add dashboard ${appname} (${department}) by ${user}"
                     git push origin HEAD:main
-                """
+                 """
                 }
             }
         }
+    }
+  }
